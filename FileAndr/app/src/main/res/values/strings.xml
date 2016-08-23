@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">FileAndr</string>
+
+    <string name="status_idle">Idle</string>
+    <string name="status_downloading">Downloading</string>
+    <string name="status_downloaded">Downloaded</string>
+
+    <string name="download_button_text">Download</string>
+    <string name="status_label_text">Status: </string>
+    <string name="activity_header_text">Picture dowloader</string>
 </resources>
