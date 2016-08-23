@@ -8,4 +8,6 @@
     <string name="download_button_text">Download</string>
     <string name="status_label_text">Status: </string>
     <string name="activity_header_text">Picture dowloader</string>
+    <!-- if url consists '&', you should replace it with '%26' or '&amp;'-->
+    <string name="image_url">http://www.cat-tube.ru/wp-content/uploads/2015/06/1280.jpg</string>
 </resources>
