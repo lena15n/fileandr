@@ -17,4 +17,10 @@
         </activity>
     </application>
 
+    <!-- Internet Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permission to write to external storage
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+
 </manifest>
