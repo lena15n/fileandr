@@ -3,18 +3,16 @@ package com.lena.fileandr;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Loader;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 
 import java.io.File;
 import java.io.IOException;
 
-public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<D> {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
 
     @Override
@@ -32,7 +30,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public MyImageAsyncLoader<D> onCreateLoader(int id, Bundle args) {
+    public MyImageAsyncLoader<Bitmap> onCreateLoader(int id, Bundle args) {
         //getFilesDir()
         /*
         String filename = "myfile";
@@ -48,22 +46,23 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         }
          */
         //return new CursorLoader(MainActivity.this, CONTENT_URI, PROJECTION, null, null, null);
-        return new MyImageAsyncLoader(getApplicationContext());
+        return new MyImageAsyncLoader<Bitmap>(getApplicationContext());
     }
 
     @Override
-    public void onLoadFinished(Loader<D> loader, D data) {
+    public void onLoadFinished(Loader<Bitmap> loader, Bitmap data) {
         switch (loader.getId()) {
             case LOADER_ID: {
-                mAdapter.swapCursor(data);
-                imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
+                ImageView imageView = (ImageView) findViewById(R.id.image_view);
+                imageView.setImageBitmap(data);
+                //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
             }
             break;
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<D> loader) {
+    public void onLoaderReset(Loader<Bitmap> loader) {
         mAdapter.swapCursor(null);
     }
 
