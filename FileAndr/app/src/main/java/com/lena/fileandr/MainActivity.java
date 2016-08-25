@@ -2,51 +2,39 @@ package com.lena.fileandr;
 
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Loader;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
-
-import java.io.File;
-import java.io.IOException;
+import android.widget.ProgressBar;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
+    private static final String TAGG = "Zooo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LoaderManager loaderManager = getLoaderManager();
-        //MyImageAsyncLoader imageAsyncLoader = new MyImageAsyncLoader(getApplicationContext());
-        // (MyImageAsyncLoader) findViewById(R.id.image_view);
-        loaderManager.initLoader(LOADER_ID, null, this);
-        // Prepare the loader.  Either re-connect with an existing one,
-        // or start a new one.
-        //getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.INVISIBLE);
+        Log.d(TAGG, "create activ   idontnow");
     }
 
     @Override
     public MyImageAsyncLoader<Bitmap> onCreateLoader(int id, Bundle args) {
-        //getFilesDir()
-        /*
-        String filename = "myfile";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
+        //initialize progress bar
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        // установить в 0 и подписать на события изменения закачки progressBar.
+        progressBar.setVisibility(View.VISIBLE);
 
-        try {
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(string.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-         */
-        //return new CursorLoader(MainActivity.this, CONTENT_URI, PROJECTION, null, null, null);
-        return new MyImageAsyncLoader<Bitmap>(getApplicationContext());
+        Log.d(TAGG, " create loader idontnow");
+        return new MyImageAsyncLoader<>(getApplicationContext());
     }
 
     @Override
@@ -55,6 +43,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             case LOADER_ID: {
                 ImageView imageView = (ImageView) findViewById(R.id.image_view);
                 imageView.setImageBitmap(data);
+                Log.d(TAGG, "something finished idontnow");
                 //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
             }
             break;
@@ -63,10 +52,10 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Bitmap> loader) {
-        mAdapter.swapCursor(null);
+        //clear old data
     }
 
-    public File getTempFile(Context context, String url) {
+    /*public File getTempFile(Context context, String url) {
         File file = null;
         try {
             String fileName = Uri.parse(url).getLastPathSegment();
@@ -75,5 +64,5 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             // Error while creating file
         }
         return file;
-    }
+    }*/
 }
