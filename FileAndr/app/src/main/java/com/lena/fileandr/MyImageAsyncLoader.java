@@ -14,6 +14,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
 
     public MyImageAsyncLoader(Context context) {
         super(context);
+        onContentChanged();
     }
 
     @Override
@@ -53,7 +54,16 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         return image;
     }
 
+    @Override
+    protected void onStartLoading() {
+        if (takeContentChanged())
+            forceLoad();
+    }
 
+    @Override
+    protected void onStopLoading() {
+        cancelLoad();
+    }
 
     /*
         String filename = "myfile";
