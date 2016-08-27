@@ -11,14 +11,19 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <provider
+        android:name=".MyProvider"
+        android:authorities="com.lena.fileandr"
+        android:exported="true" />
     </application>
 
     <!-- Internet Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+
 
     <!-- Permission to write to external storage
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->

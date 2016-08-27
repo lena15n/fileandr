@@ -10,4 +10,5 @@
     <string name="activity_header_text">Picture downloader</string>
     <!-- if url consists '&', you should replace it with '%26' or '&amp;'-->
     <string name="image_url">http://www.cat-tube.ru/wp-content/uploads/2015/06/1280.jpg</string>
+    <string name="image_file_name">cat.png</string>
 </resources>

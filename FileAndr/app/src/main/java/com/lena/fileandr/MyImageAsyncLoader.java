@@ -28,7 +28,6 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
             url = new URL(appContext.getResources().getString(R.string.image_url));
 
         } catch (MalformedURLException e) {
-
             e.printStackTrace();
         }
 
@@ -36,21 +35,18 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
             try {
                 connection = url.openConnection();
             } catch (IOException e) {
-//                Toast.makeText(appContext, e.getMessage(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
 
             if (connection != null) {
                 try {
                     image = (Bitmap) BitmapFactory.decodeStream(connection.getInputStream());
+
                 } catch (IOException e) {
-//                    Toast.makeText(appContext, e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             }
         }
-
-//        Toast.makeText(appContext, "something was returned idontnow", Toast.LENGTH_LONG).show();
         return image;
     }
 
@@ -65,19 +61,6 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         cancelLoad();
     }
 
-    /*
-        String filename = "myfile";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
-
-        try {
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(string.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-         */
 
 
 

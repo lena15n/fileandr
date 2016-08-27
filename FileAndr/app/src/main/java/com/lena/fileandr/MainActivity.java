@@ -2,16 +2,20 @@ package com.lena.fileandr;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileOutputStream;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
@@ -19,6 +23,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     private static ProgressBar progressBar;
     private static Button downloadButton;
     private static TextView statusLabelTextView;
+    private static boolean isImageDownloaded;
 
 
     @Override
@@ -32,13 +37,22 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
         statusLabelTextView.setText(getString(R.string.status_idle));
 
+        isImageDownloaded = false;
+
         downloadButton = (Button) findViewById(R.id.button);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
+                if (!isImageDownloaded) {
+                    getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
 
-                Toast.makeText(getApplicationContext(), "oh man", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "oh man", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse("content://com.lena.fileandr/" + getString(R.string.image_file_name)), "image/*");
+                    startActivity(intent);
+                }
             }
         });
 
@@ -70,8 +84,10 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                 progressBar = (ProgressBar) findViewById(R.id.progress_bar);
                 progressBar.setVisibility(View.INVISIBLE);
 
-                ImageView imageView = (ImageView) findViewById(R.id.image_view);
-                imageView.setImageBitmap(data);
+                //ImageView imageView = (ImageView) findViewById(R.id.image_view);
+                //imageView.setImageBitmap(data);
+
+                saveImageToInternalStorage(data);
 
                 statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
                 statusLabelTextView.setText(getString(R.string.status_downloaded));
@@ -80,10 +96,34 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                 downloadButton.setText(R.string.open_button_text);
                 downloadButton.setEnabled(true);
 
+                isImageDownloaded = true;
+
                 Log.d(TAGG, "---------------download has been finished");
                 //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
             }
             break;
+        }
+    }
+
+    private boolean saveImageToInternalStorage(android.graphics.Bitmap someImage) {
+        try {
+            // Use the compress method on the Bitmap object to write image to
+            // the OutputStream
+            FileOutputStream fos = getApplicationContext().
+                    openFileOutput(getString(R.string.image_file_name), Context.MODE_WORLD_READABLE);
+           /* File cacheDir = getCacheDir();
+            File outFile = new File(cacheDir, getString(R.string.image_file_name));
+
+            FileOutputStream fos = new FileOutputStream(outFile.getAbsolutePath());*/
+
+            // Writing the bitmap to the output stream
+            someImage.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+
+            return true;
+        } catch (Exception e) {
+            Log.e("saveToInternalStorage()", e.getMessage());
+            return false;
         }
     }
 
