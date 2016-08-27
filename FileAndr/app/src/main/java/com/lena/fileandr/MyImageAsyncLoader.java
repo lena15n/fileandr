@@ -9,9 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-/**
- * Created by Lena on 8/24/2016.
- */
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     private Bitmap image;
 
@@ -30,7 +27,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
             url = new URL(appContext.getResources().getString(R.string.image_url));
 
         } catch (MalformedURLException e) {
-           /* Toast.makeText(appContext, e.getMessage(), Toast.LENGTH_LONG).show();//context, text, duration*/
+
             e.printStackTrace();
         }
 

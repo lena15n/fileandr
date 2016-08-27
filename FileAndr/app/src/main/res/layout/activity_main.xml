@@ -25,7 +25,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/status_label_text"
         android:id="@+id/status_text_view"
         android:textSize="@dimen/status_label_text_size"
         android:layout_below="@+id/header_text_view"
