@@ -3,6 +3,7 @@ package com.lena.fileandr;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,10 +12,12 @@ import java.net.URLConnection;
 
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     private Bitmap image;
+    private static final String TAGG = "Zooo";
 
     public MyImageAsyncLoader(Context context) {
         super(context);
         onContentChanged();
+        Log.d(TAGG, "loader: crate loaderr");
     }
 
     @Override
@@ -23,6 +26,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         URL url = null;
         URLConnection connection = null;
         Context appContext = getContext();
+        Log.d(TAGG, "loader: inside load in background");
 
         try {
             url = new URL(appContext.getResources().getString(R.string.image_url));
@@ -36,30 +40,39 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                 connection = url.openConnection();
             } catch (IOException e) {
                 e.printStackTrace();
+                reset();//stopLoading();cancelLoad();
+                Log.d(TAGG, "loader: stop load");
             }
 
-            if (connection != null) {
+            if (connection != null){
                 try {
                     image = (Bitmap) BitmapFactory.decodeStream(connection.getInputStream());
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();// ругается на разницу Bitmap и graphics.Bitmap
                 }
+            }
+            else {
+                image = null;
+
+                stopLoading();
             }
         }
         return image;
     }
 
     @Override
-    protected void onStartLoading() {
+    protected void onStartLoading() {//method of Loader
         if (takeContentChanged())
             forceLoad();
     }
 
     @Override
-    protected void onStopLoading() {
+    protected void onStopLoading() {//method of Loader
         cancelLoad();
+        Log.d(TAGG, "loader: on stop loading");
     }
+
 
 
 

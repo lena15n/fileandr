@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,9 +46,17 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             @Override
             public void onClick(View v) {
                 if (!isImageDownloaded) {
-                    getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
+                    ConnectivityManager connMgr = (ConnectivityManager)
+                            getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
 
-                    Toast.makeText(getApplicationContext(), "oh man", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "oh man", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), R.string.error_conn, Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
@@ -56,7 +66,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             }
         });
 
-        Log.d(TAGG, "--------create activity");
+        Log.d(TAGG, "create activity");
     }
 
     @Override
@@ -73,7 +83,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         downloadButton.setEnabled(false);
 
 
-        Log.d(TAGG, "---------- create loader");
+        Log.d(TAGG, "create loader");
         return new MyImageAsyncLoader<>(getApplicationContext());
     }
 
@@ -86,20 +96,35 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
                 //ImageView imageView = (ImageView) findViewById(R.id.image_view);
                 //imageView.setImageBitmap(data);
+                if (data != null) {
+                    saveImageToInternalStorage(data);
 
-                saveImageToInternalStorage(data);
+                    statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
+                    statusLabelTextView.setText(getString(R.string.status_downloaded));
 
-                statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
-                statusLabelTextView.setText(getString(R.string.status_downloaded));
+                    downloadButton = (Button) findViewById(R.id.button);
+                    downloadButton.setText(R.string.open_button_text);
+                    downloadButton.setEnabled(true);
 
-                downloadButton = (Button) findViewById(R.id.button);
-                downloadButton.setText(R.string.open_button_text);
-                downloadButton.setEnabled(true);
+                    isImageDownloaded = true;
 
-                isImageDownloaded = true;
+                    Log.d(TAGG, "download has been finished");
+                    //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
 
-                Log.d(TAGG, "---------------download has been finished");
-                //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
+                    //getLoaderManager().destroyLoader(id);
+                }/* else {
+                    statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
+                    statusLabelTextView.setText(getString(R.string.status_idle));
+
+                    downloadButton = (Button) findViewById(R.id.button);
+                    downloadButton.setText(R.string.download_button_text);
+                    downloadButton.setEnabled(true);
+
+                    isImageDownloaded = false;
+
+
+                    Log.d(TAGG, "download has ERROR");
+                }*/
             }
             break;
         }
@@ -107,16 +132,11 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     private boolean saveImageToInternalStorage(android.graphics.Bitmap someImage) {
         try {
-            // Use the compress method on the Bitmap object to write image to
-            // the OutputStream
+
             FileOutputStream fos = getApplicationContext().
-                    openFileOutput(getString(R.string.image_file_name), Context.MODE_WORLD_READABLE);
-           /* File cacheDir = getCacheDir();
-            File outFile = new File(cacheDir, getString(R.string.image_file_name));
+                    openFileOutput(getString(R.string.image_file_name), Context.MODE_PRIVATE);
 
-            FileOutputStream fos = new FileOutputStream(outFile.getAbsolutePath());*/
-
-            // Writing the bitmap to the output stream
+            // Use the compress method on the Bitmap object to write image to
             someImage.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, fos);
             fos.close();
 
@@ -129,18 +149,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Bitmap> loader) {
-        Toast.makeText(getApplicationContext(), "loader said no!!!!", Toast.LENGTH_LONG).show();//context, text, duration
+        Log.d(TAGG, "RESET!!");
         //clear old data
     }
-
-    /*public File getTempFile(Context context, String url) {
-        File file = null;
-        try {
-            String fileName = Uri.parse(url).getLastPathSegment();
-            file = File.createTempFile(fileName, null, context.getCacheDir());
-        } catch (IOException e) {
-            // Error while creating file
-        }
-        return file;
-    }*/
 }
