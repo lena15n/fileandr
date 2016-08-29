@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,17 +44,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             @Override
             public void onClick(View v) {
                 if (!isImageDownloaded) {
-                    ConnectivityManager connMgr = (ConnectivityManager)
-                            getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                    if (networkInfo != null && networkInfo.isConnected()) {
-                        getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
-
-                        Toast.makeText(getApplicationContext(), "oh man", Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(getApplicationContext(), R.string.error_conn, Toast.LENGTH_LONG).show();
-                    }
+                    getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
                 } else {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
@@ -112,7 +100,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                     //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
 
                     //getLoaderManager().destroyLoader(id);
-                }/* else {
+                } else {
                     statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
                     statusLabelTextView.setText(getString(R.string.status_idle));
 
@@ -122,9 +110,11 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
                     isImageDownloaded = false;
 
+                    Toast.makeText(getApplicationContext(), R.string.error_conn, Toast.LENGTH_LONG).show();
+                    getLoaderManager().destroyLoader(LOADER_ID);
 
                     Log.d(TAGG, "download has ERROR");
-                }*/
+                }
             }
             break;
         }
