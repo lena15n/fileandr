@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -13,12 +14,21 @@ import java.net.URLConnection;
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     private Bitmap image;
     private static final String TAGG = "Zooo";
+    static WeakReference<MainActivity> mActivity;
+    private int progress;
+    private boolean finished;
 
     public MyImageAsyncLoader(Context context) {
         super(context);
         onContentChanged();
         Log.d(TAGG, "loader: crate loaderr");
     }
+
+   /* public MyImageAsyncLoader(MainActivity activity) {
+        super(activity);
+        mActivity = new WeakReference<MainActivity>(activity);
+    }*/
+
 
     @Override
     public Bitmap loadInBackground() {
@@ -44,27 +54,51 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                 Log.d(TAGG, "loader: stop load");
             }
 
-            if (connection != null){
+            if (connection != null) {
                 try {
                     image = (Bitmap) BitmapFactory.decodeStream(connection.getInputStream());
 
                 } catch (IOException e) {
                     e.printStackTrace();// ругается на разницу Bitmap и graphics.Bitmap
                 }
-            }
-            else {
-                image = null;
 
-                stopLoading();
+                finished = true;
+                return image;
             }
+        } else {
+            image = null;
+
+            stopLoading();
         }
+
         return image;
     }
 
+
     @Override
     protected void onStartLoading() {//method of Loader
-        if (takeContentChanged())
+        // protected Bitmap onLoadInBackground() {//takeContentChanged(){//onContentChanged() {
+        if (takeContentChanged()) {
             forceLoad();
+        }
+
+        while (!finished) {
+            progress += 5;
+            if (progress < MainActivity.MAX_COUNT) {
+                Log.d(getClass().getSimpleName(), "Progress value is " + progress);
+                Log.d(getClass().getSimpleName(), "getActivity is " + getContext());
+                Log.d(getClass().getSimpleName(), "this is " + this);
+
+                if (mActivity.get() != null) {
+                    mActivity.get().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mActivity.get().setProgressToProgressBar(progress);
+                        }
+                    });
+                }
+            }
+        }
     }
 
     @Override
@@ -155,4 +189,5 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         }
         mCursor = null;
     }*/
+
 }

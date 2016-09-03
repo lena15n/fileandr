@@ -16,15 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
+import java.lang.ref.WeakReference;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
     private static final String TAGG = "Zooo";
-    private static ProgressBar progressBar;
+    private ProgressBar progressBar;
     private static Button downloadButton;
     private static TextView statusLabelTextView;
     private static boolean isImageDownloaded;
-
+    public static final Integer MAX_COUNT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         setContentView(R.layout.activity_main);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setMax(MAX_COUNT);
+       // progressBar.setVisibility(View.INVISIBLE);
 
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
         statusLabelTextView.setText(getString(R.string.status_idle));
@@ -55,6 +57,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         });
 
         Log.d(TAGG, "create activity");
+
+        MyImageAsyncLoader.mActivity = new WeakReference<>(this);
     }
 
     @Override
@@ -141,5 +145,9 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     public void onLoaderReset(Loader<Bitmap> loader) {
         Log.d(TAGG, "RESET!!");
         //clear old data
+    }
+
+    public void setProgressToProgressBar(int progress) {
+        progressBar.setProgress(progress);
     }
 }
