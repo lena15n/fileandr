@@ -12,6 +12,8 @@
     <string name="error_conn">Error occures! Try download again..</string>
 
     <!-- if url consists '&', you should replace it with '%26' or '&amp;'-->
-    <string name="image_url">http://www.cat-tube.ru/wp-content/uploads/2015/06/1280.jpg</string>
-    <string name="image_file_name">cat.png</string>
+    <string name="image_url">http://cdn.wallpapersafari.com/20/82/z8m4UB.jpg</string><!--http://www.cat-tube.ru/wp-content/uploads/2015/06/1280.jpg</string>
+    --><string name="image_file_name">cat.png</string>
+
+    <string name="content_path">content://com.lena.fileandr/</string>
 </resources>

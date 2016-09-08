@@ -2,8 +2,10 @@ package com.lena.fileandr;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -16,16 +18,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileOutputStream;
-import java.lang.ref.WeakReference;
 
-public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> { //AppResultsReceiver.Receiver {
     private static final int LOADER_ID = 1;
     private static final String TAGG = "Zooo";
-    private ProgressBar progressBar;
+    public final static String BROADCAST_ACTION = "com.lena.fileandr.loaderbackbroadcast";
+    public static final Integer MAX_COUNT = 1000;
+    public static final String PROGRESS = "currprogress";
+
     private static Button downloadButton;
     private static TextView statusLabelTextView;
     private static boolean isImageDownloaded;
-    public static final Integer MAX_COUNT = 100;
+
+    private ProgressBar progressBar;
+    private AppResultsReceiver mReceiver;
+    BroadcastReceiver broadcastReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +42,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setMax(MAX_COUNT);
-       // progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
 
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
         statusLabelTextView.setText(getString(R.string.status_idle));
@@ -47,18 +55,57 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
             public void onClick(View v) {
                 if (!isImageDownloaded) {
                     getLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
+
+
                 } else {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.parse("content://com.lena.fileandr/" + getString(R.string.image_file_name)), "image/*");
+                    intent.setDataAndType(Uri.parse(getString(R.string.content_path) + getString(R.string.image_file_name)), "image/*");
                     startActivity(intent);
                 }
             }
         });
 
+        broadcastReceiver = new BroadcastReceiver() {
+            public void onReceive(Context context, Intent intent) {
+                int currentProgress = intent.getIntExtra(PROGRESS, 0);
+                Log.d(TAGG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
+
+                if (currentProgress <= MAX_COUNT) {
+                        progressBar.setProgress(currentProgress);
+                } else {
+                    progressBar.setVisibility(View.INVISIBLE);
+                }
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
+
         Log.d(TAGG, "create activity");
 
-        MyImageAsyncLoader.mActivity = new WeakReference<>(this);
+        //MyImageAsyncLoader.mActivity = new WeakReference<>(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        /*mReceiver = new AppResultsReceiver(new Handler());
+        mReceiver.setReceiver(this);*/
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        /*mReceiver.setReceiver(null);*/
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -150,4 +197,23 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     public void setProgressToProgressBar(int progress) {
         progressBar.setProgress(progress);
     }
+
+   /* @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        if (resultCode == Constants.IN_PROGRESS) {
+            int progress = resultData.getInt("progress");
+            if (progress <= 100) {
+                progressBar.setProgress(progress);
+            }
+        }
+
+        *//*if (mReceiver != null) {
+            mReceiver.onReceiveResult(resultCode, resultData);
+        }*//*
+    }*/
+
+
+
+
+
 }

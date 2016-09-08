@@ -2,14 +2,20 @@ package com.lena.fileandr;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     private Bitmap image;
@@ -17,6 +23,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     static WeakReference<MainActivity> mActivity;
     private int progress;
     private boolean finished;
+    public static final int UPDATE_PROGRESS = 8344;
 
     public MyImageAsyncLoader(Context context) {
         super(context);
@@ -24,17 +31,11 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         Log.d(TAGG, "loader: crate loaderr");
     }
 
-   /* public MyImageAsyncLoader(MainActivity activity) {
-        super(activity);
-        mActivity = new WeakReference<MainActivity>(activity);
-    }*/
-
-
     @Override
     public Bitmap loadInBackground() {
         image = null;
         URL url = null;
-        URLConnection connection = null;
+        HttpURLConnection connection = null;
         Context appContext = getContext();
         Log.d(TAGG, "loader: inside load in background");
 
@@ -47,7 +48,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
 
         if (url != null) {
             try {
-                connection = url.openConnection();
+                connection = (HttpURLConnection)url.openConnection();
             } catch (IOException e) {
                 e.printStackTrace();
                 reset();//stopLoading();cancelLoad();
@@ -56,7 +57,72 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
 
             if (connection != null) {
                 try {
-                    image = (Bitmap) BitmapFactory.decodeStream(connection.getInputStream());
+                    /*progress = 0;
+
+                    while (!finished) {
+                        progress += 1;
+                        if (progress <= MainActivity.MAX_COUNT) {
+                            Log.d(getClass().getSimpleName(), "Progress value is " + progress);
+
+                            if (mActivity.get() != null) {
+                                mActivity.get().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mActivity.get().setProgressToProgressBar(progress);
+                                    }
+                                });
+                            }
+                        }
+                    }*/
+
+                    /*final ResultReceiver receiver = intent.getParcelableExtra(Constants.RECEIVER);
+                    receiver.send(Constants.STATUS_RUNNING, Bundle.EMPTY);
+*/
+
+                    int fileLength = connection.getContentLength();
+
+                    File catFile = new File(getContext().getFilesDir(), getContext().getString(R.string.image_file_name)) ;
+
+
+                    // download the file
+                    InputStream input = new BufferedInputStream(connection.getInputStream());
+                    OutputStream output = new FileOutputStream(catFile);
+
+                    byte[] data = new byte[1024];
+                    long total = 0;
+                    int count;
+
+                    while ((count = input.read(data)) != -1) {
+                        total += count;
+                        output.write(data, 0, count);
+
+                        /*// publishing the progress....
+                        Bundle resultData = new Bundle();
+                        resultData.putInt("progress", (int) (total * 100 / fileLength));//в процентах
+                        receiver.send(UPDATE_PROGRESS, resultData);*/
+                        progress = (int) (total * MainActivity.MAX_COUNT / fileLength);
+
+                        if (progress <= MainActivity.MAX_COUNT) {
+                            Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
+                            Log.d(TAGG, "BR sends progress = " + progress + "..");
+                            intent.putExtra(MainActivity.PROGRESS, progress);
+                            getContext().sendBroadcast(intent);
+                        }
+                    }
+
+                    output.flush();
+                    output.close();
+                    input.close();
+
+                    if (progress < MainActivity.MAX_COUNT) {
+                        progress = MainActivity.MAX_COUNT;
+                        Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
+                        Log.d(TAGG, "BR finished!");
+                        intent.putExtra(MainActivity.PROGRESS, progress);
+                        getContext().sendBroadcast(intent);
+                    }
+
+                    image = (Bitmap) BitmapFactory.decodeFile(catFile.getPath());
 
                 } catch (IOException e) {
                     e.printStackTrace();// ругается на разницу Bitmap и graphics.Bitmap
@@ -74,120 +140,16 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         return image;
     }
 
-
     @Override
-    protected void onStartLoading() {//method of Loader
-        // protected Bitmap onLoadInBackground() {//takeContentChanged(){//onContentChanged() {
-        if (takeContentChanged()) {
-            forceLoad();
-        }
-
-        while (!finished) {
-            progress += 5;
-            if (progress < MainActivity.MAX_COUNT) {
-                Log.d(getClass().getSimpleName(), "Progress value is " + progress);
-                Log.d(getClass().getSimpleName(), "getActivity is " + getContext());
-                Log.d(getClass().getSimpleName(), "this is " + this);
-
-                if (mActivity.get() != null) {
-                    mActivity.get().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mActivity.get().setProgressToProgressBar(progress);
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onStopLoading() {//method of Loader
-        cancelLoad();
-        Log.d(TAGG, "loader: on stop loading");
-    }
-
-
-
-
-
-   /* @Override
     protected void onStartLoading() {
         if (takeContentChanged()) {
             forceLoad();
         }
-        else if (hasResult) {
-            deliverResult(image);
-        }
     }
 
     @Override
-    public void deliverResult(final Bitmap data) {
-        image = data;
-        hasResult = true;
-        super.deliverResult(data);
+    protected void onStopLoading() {
+        cancelLoad();
+        Log.d(TAGG, "loader: on stop loading");
     }
-
-    @Override
-    protected void onReset() {
-        super.onReset();
-        onStopLoading();
-        if (hasResult) {
-            onReleaseResources(image);
-            image = null;
-            hasResult = false;
-        }
-    }
-
-    protected void onReleaseResources(Bitmap data) {
-        //nothing to do.
-    }
-
-    public Bitmap getResult() {
-        return image;
-    }*/
-
-    /*@Override
-    public void deliverResult(Bitmap data) {//
-        image = data;
-
-        if (isStarted()) {
-            super.deliverResult(data);
-        }
-    }
-
-
-    @Override
-    protected void onStartLoading() {//
-        if (image != null) {
-            deliverResult(image);
-        }
-        if (takeContentChanged() || image == null) {
-            forceLoad();
-        }
-    }
-
-    @Override
-    protected void onStopLoading() {//
-        cancelLoad();// Попытаться отменить текущую задачу загрузки, если возможно.
-    }
-
-    @Override
-    public void onCanceled(Bitmap data) {//
-        if (data != null) {
-            data = null;
-        }
-    }
-
-    @Override
-    protected void onReset() {//
-        super.onReset();
-
-        onStopLoading();// Убедиться в том, что загрузчик остановлен
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
-        }
-        mCursor = null;
-    }*/
-
 }
