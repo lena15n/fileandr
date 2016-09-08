@@ -17,12 +17,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
+    static final String TAG = "Loader Zooo";
     private int progress;
 
     public MyImageAsyncLoader(Context context) {
         super(context);
         onContentChanged();
-        Log.d(Constants.TAGG, "loader: crate loaderr");
+        Log.d(TAG, "loader: crate loaderr");
     }
 
     @Override
@@ -31,7 +32,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
         URL url = null;
         HttpURLConnection connection = null;
         Context appContext = getContext();
-        Log.d(Constants.TAGG, "loader: inside load in background");
+        Log.d(TAG, "loader: inside load in background");
 
         try {
             url = new URL(appContext.getResources().getString(R.string.image_url));
@@ -46,7 +47,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
             } catch (IOException e) {
                 e.printStackTrace();
                 reset();//stopLoading();cancelLoad();
-                Log.d(Constants.TAGG, "loader: stop load");
+                Log.d(TAG, "loader: stop load");
             }
 
             if (connection != null) {
@@ -67,12 +68,12 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                         output.write(data, 0, count);
 
                         // publishing the progress....
-                        progress = (int) (total * Constants.MAX_COUNT / fileLength);
+                        progress = (int) (total * MainActivity.MAX_COUNT / fileLength);
 
-                        if (progress <= Constants.MAX_COUNT) {
+                        if (progress <= MainActivity.MAX_COUNT) {
                             Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                            Log.d(Constants.TAGG, "BR sends progress = " + progress + "..");
-                            intent.putExtra(Constants.PROGRESS, progress);
+                            Log.d(TAG, "BR sends progress = " + progress + "..");
+                            intent.putExtra(MainActivity.PROGRESS, progress);
                             getContext().sendBroadcast(intent);
                         }
                     }
@@ -81,11 +82,11 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                     output.close();
                     input.close();
 
-                    if (progress < Constants.MAX_COUNT) {
-                        progress = Constants.MAX_COUNT;
+                    if (progress < MainActivity.MAX_COUNT) {
+                        progress = MainActivity.MAX_COUNT;
                         Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                        Log.d(Constants.TAGG, "BR finished!");
-                        intent.putExtra(Constants.PROGRESS, progress);
+                        Log.d(TAG, "BR finished!");
+                        intent.putExtra(MainActivity.PROGRESS, progress);
                         getContext().sendBroadcast(intent);
                     }
 
@@ -116,6 +117,6 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     @Override
     protected void onStopLoading() {
         cancelLoad();
-        Log.d(Constants.TAGG, "loader: on stop loading");
+        Log.d(TAG, "loader: on stop loading");
     }
 }

@@ -21,7 +21,10 @@ import java.io.FileOutputStream;
 
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
-    public final static String BROADCAST_ACTION = "com.lena.fileandr.loaderbackbroadcast";
+    static final String BROADCAST_ACTION = "com.lena.fileandr.loaderbackbroadcast";
+    static final String TAG = "Zooo";
+    static final int MAX_COUNT = 1000;
+    static final String PROGRESS = "currprogress";
 
     private static Button downloadButton;
     private static TextView statusLabelTextView;
@@ -36,7 +39,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         setContentView(R.layout.activity_main);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progressBar.setMax(Constants.MAX_COUNT);
+        progressBar.setMax(MAX_COUNT);
         progressBar.setVisibility(View.INVISIBLE);
 
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
@@ -63,10 +66,10 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
         broadcastReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
-                int currentProgress = intent.getIntExtra(Constants.PROGRESS, 0);
-                Log.d(Constants.TAGG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
+                int currentProgress = intent.getIntExtra(MainActivity.PROGRESS, 0);
+                Log.d(TAG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
 
-                if (currentProgress <= Constants.MAX_COUNT) {
+                if (currentProgress <= MAX_COUNT) {
                         progressBar.setProgress(currentProgress);
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
@@ -77,7 +80,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
 
-        Log.d(Constants.TAGG, "create activity");
+        Log.d(TAG, "create activity");
     }
 
     @Override
@@ -98,7 +101,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public MyImageAsyncLoader<Bitmap> onCreateLoader(int id, Bundle args) {
+    public Loader<Bitmap> onCreateLoader(int id, Bundle args) {
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.VISIBLE);
 
@@ -108,7 +111,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         downloadButton = (Button) findViewById(R.id.button);
         downloadButton.setEnabled(false);
 
-        Log.d(Constants.TAGG, "create loader");
+        Log.d(TAG, "create loader");
         return new MyImageAsyncLoader<>(getApplicationContext());
     }
 
@@ -131,7 +134,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
                     isImageDownloaded = true;
 
-                    Log.d(Constants.TAGG, "download has been finished");
+                    Log.d(TAG, "download has been finished");
 
                     //getLoaderManager().destroyLoader(id);
                 } else {
@@ -147,7 +150,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                     Toast.makeText(getApplicationContext(), R.string.error_conn, Toast.LENGTH_LONG).show();
                     getLoaderManager().destroyLoader(LOADER_ID);
 
-                    Log.d(Constants.TAGG, "download has ERROR");
+                    Log.d(TAG, "download has ERROR");
                 }
             }
             break;
@@ -173,6 +176,6 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Bitmap> loader) {
-        Log.d(Constants.TAGG, "RESET!!");
+        Log.d(TAG, "RESET!!");
     }
 }
