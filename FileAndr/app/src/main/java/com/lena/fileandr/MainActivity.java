@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
     public final static String BROADCAST_ACTION = "com.lena.fileandr.loaderbackbroadcast";
-    public static final String PROGRESS = "currprogress";
 
     private static Button downloadButton;
     private static TextView statusLabelTextView;
@@ -64,7 +63,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
         broadcastReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
-                int currentProgress = intent.getIntExtra(PROGRESS, 0);
+                int currentProgress = intent.getIntExtra(Constants.PROGRESS, 0);
                 Log.d(Constants.TAGG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
 
                 if (currentProgress <= Constants.MAX_COUNT) {

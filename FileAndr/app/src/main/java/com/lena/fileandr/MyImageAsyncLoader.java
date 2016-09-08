@@ -72,7 +72,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                         if (progress <= Constants.MAX_COUNT) {
                             Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
                             Log.d(Constants.TAGG, "BR sends progress = " + progress + "..");
-                            intent.putExtra(MainActivity.PROGRESS, progress);
+                            intent.putExtra(Constants.PROGRESS, progress);
                             getContext().sendBroadcast(intent);
                         }
                     }
@@ -85,7 +85,7 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                         progress = Constants.MAX_COUNT;
                         Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
                         Log.d(Constants.TAGG, "BR finished!");
-                        intent.putExtra(MainActivity.PROGRESS, progress);
+                        intent.putExtra(Constants.PROGRESS, progress);
                         getContext().sendBroadcast(intent);
                     }
 
