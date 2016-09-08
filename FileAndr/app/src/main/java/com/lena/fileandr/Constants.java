@@ -1,7 +1,7 @@
 package com.lena.fileandr;
 
 public class Constants {
-    public static final String RECEIVER = "receiver";
-    public static final int IN_PROGRESS = 55;
-    public static final int FINISHED = 66;
+    static final String TAGG = "Zooo";
+    static final Integer MAX_COUNT = 1000;
+    static final String PROGRESS = "currprogress";
 }

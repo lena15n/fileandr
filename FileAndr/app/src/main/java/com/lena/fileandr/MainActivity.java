@@ -19,11 +19,9 @@ import android.widget.Toast;
 
 import java.io.FileOutputStream;
 
-public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> { //AppResultsReceiver.Receiver {
+public class MainActivity extends Activity implements LoaderManager.LoaderCallbacks<Bitmap> {
     private static final int LOADER_ID = 1;
-    private static final String TAGG = "Zooo";
     public final static String BROADCAST_ACTION = "com.lena.fileandr.loaderbackbroadcast";
-    public static final Integer MAX_COUNT = 1000;
     public static final String PROGRESS = "currprogress";
 
     private static Button downloadButton;
@@ -31,9 +29,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
     private static boolean isImageDownloaded;
 
     private ProgressBar progressBar;
-    private AppResultsReceiver mReceiver;
     BroadcastReceiver broadcastReceiver;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +37,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         setContentView(R.layout.activity_main);
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        progressBar.setMax(MAX_COUNT);
+        progressBar.setMax(Constants.MAX_COUNT);
         progressBar.setVisibility(View.INVISIBLE);
 
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
@@ -69,9 +65,9 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         broadcastReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 int currentProgress = intent.getIntExtra(PROGRESS, 0);
-                Log.d(TAGG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
+                Log.d(Constants.TAGG, "onReceive: currentProgress = " + currentProgress + ", status = " + currentProgress);
 
-                if (currentProgress <= MAX_COUNT) {
+                if (currentProgress <= Constants.MAX_COUNT) {
                         progressBar.setProgress(currentProgress);
                 } else {
                     progressBar.setVisibility(View.INVISIBLE);
@@ -82,23 +78,17 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
 
-        Log.d(TAGG, "create activity");
-
-        //MyImageAsyncLoader.mActivity = new WeakReference<>(this);
+        Log.d(Constants.TAGG, "create activity");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        /*mReceiver = new AppResultsReceiver(new Handler());
-        mReceiver.setReceiver(this);*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        /*mReceiver.setReceiver(null);*/
     }
 
     @Override
@@ -110,9 +100,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public MyImageAsyncLoader<Bitmap> onCreateLoader(int id, Bundle args) {
-        //initialize progress bar
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        // установить в 0 и подписать на события изменения закачки progressBar.
         progressBar.setVisibility(View.VISIBLE);
 
         statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
@@ -121,8 +109,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
         downloadButton = (Button) findViewById(R.id.button);
         downloadButton.setEnabled(false);
 
-
-        Log.d(TAGG, "create loader");
+        Log.d(Constants.TAGG, "create loader");
         return new MyImageAsyncLoader<>(getApplicationContext());
     }
 
@@ -133,10 +120,8 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                 progressBar = (ProgressBar) findViewById(R.id.progress_bar);
                 progressBar.setVisibility(View.INVISIBLE);
 
-                //ImageView imageView = (ImageView) findViewById(R.id.image_view);
-                //imageView.setImageBitmap(data);
                 if (data != null) {
-                    saveImageToInternalStorage(data);
+                    //saveImageToInternalStorage(data);
 
                     statusLabelTextView = (TextView) findViewById(R.id.status_text_view);
                     statusLabelTextView.setText(getString(R.string.status_downloaded));
@@ -147,8 +132,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
                     isImageDownloaded = true;
 
-                    Log.d(TAGG, "download has been finished");
-                    //imgLoader.DisplayImage(R.string.image_url, loader, (ImageView) findViewById(R.id.image_view));
+                    Log.d(Constants.TAGG, "download has been finished");
 
                     //getLoaderManager().destroyLoader(id);
                 } else {
@@ -164,7 +148,7 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
                     Toast.makeText(getApplicationContext(), R.string.error_conn, Toast.LENGTH_LONG).show();
                     getLoaderManager().destroyLoader(LOADER_ID);
 
-                    Log.d(TAGG, "download has ERROR");
+                    Log.d(Constants.TAGG, "download has ERROR");
                 }
             }
             break;
@@ -190,30 +174,6 @@ public class MainActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Bitmap> loader) {
-        Log.d(TAGG, "RESET!!");
-        //clear old data
+        Log.d(Constants.TAGG, "RESET!!");
     }
-
-    public void setProgressToProgressBar(int progress) {
-        progressBar.setProgress(progress);
-    }
-
-   /* @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == Constants.IN_PROGRESS) {
-            int progress = resultData.getInt("progress");
-            if (progress <= 100) {
-                progressBar.setProgress(progress);
-            }
-        }
-
-        *//*if (mReceiver != null) {
-            mReceiver.onReceiveResult(resultCode, resultData);
-        }*//*
-    }*/
-
-
-
-
-
 }

@@ -12,32 +12,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
-    private Bitmap image;
-    private static final String TAGG = "Zooo";
-    static WeakReference<MainActivity> mActivity;
     private int progress;
-    private boolean finished;
-    public static final int UPDATE_PROGRESS = 8344;
 
     public MyImageAsyncLoader(Context context) {
         super(context);
         onContentChanged();
-        Log.d(TAGG, "loader: crate loaderr");
+        Log.d(Constants.TAGG, "loader: crate loaderr");
     }
 
     @Override
     public Bitmap loadInBackground() {
-        image = null;
+        Bitmap image = null;
         URL url = null;
         HttpURLConnection connection = null;
         Context appContext = getContext();
-        Log.d(TAGG, "loader: inside load in background");
+        Log.d(Constants.TAGG, "loader: inside load in background");
 
         try {
             url = new URL(appContext.getResources().getString(R.string.image_url));
@@ -52,37 +46,13 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
             } catch (IOException e) {
                 e.printStackTrace();
                 reset();//stopLoading();cancelLoad();
-                Log.d(TAGG, "loader: stop load");
+                Log.d(Constants.TAGG, "loader: stop load");
             }
 
             if (connection != null) {
                 try {
-                    /*progress = 0;
-
-                    while (!finished) {
-                        progress += 1;
-                        if (progress <= MainActivity.MAX_COUNT) {
-                            Log.d(getClass().getSimpleName(), "Progress value is " + progress);
-
-                            if (mActivity.get() != null) {
-                                mActivity.get().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mActivity.get().setProgressToProgressBar(progress);
-                                    }
-                                });
-                            }
-                        }
-                    }*/
-
-                    /*final ResultReceiver receiver = intent.getParcelableExtra(Constants.RECEIVER);
-                    receiver.send(Constants.STATUS_RUNNING, Bundle.EMPTY);
-*/
-
                     int fileLength = connection.getContentLength();
-
                     File catFile = new File(getContext().getFilesDir(), getContext().getString(R.string.image_file_name)) ;
-
 
                     // download the file
                     InputStream input = new BufferedInputStream(connection.getInputStream());
@@ -96,15 +66,12 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                         total += count;
                         output.write(data, 0, count);
 
-                        /*// publishing the progress....
-                        Bundle resultData = new Bundle();
-                        resultData.putInt("progress", (int) (total * 100 / fileLength));//в процентах
-                        receiver.send(UPDATE_PROGRESS, resultData);*/
-                        progress = (int) (total * MainActivity.MAX_COUNT / fileLength);
+                        // publishing the progress....
+                        progress = (int) (total * Constants.MAX_COUNT / fileLength);
 
-                        if (progress <= MainActivity.MAX_COUNT) {
+                        if (progress <= Constants.MAX_COUNT) {
                             Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                            Log.d(TAGG, "BR sends progress = " + progress + "..");
+                            Log.d(Constants.TAGG, "BR sends progress = " + progress + "..");
                             intent.putExtra(MainActivity.PROGRESS, progress);
                             getContext().sendBroadcast(intent);
                         }
@@ -114,10 +81,10 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                     output.close();
                     input.close();
 
-                    if (progress < MainActivity.MAX_COUNT) {
-                        progress = MainActivity.MAX_COUNT;
+                    if (progress < Constants.MAX_COUNT) {
+                        progress = Constants.MAX_COUNT;
                         Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                        Log.d(TAGG, "BR finished!");
+                        Log.d(Constants.TAGG, "BR finished!");
                         intent.putExtra(MainActivity.PROGRESS, progress);
                         getContext().sendBroadcast(intent);
                     }
@@ -128,7 +95,6 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
                     e.printStackTrace();// ругается на разницу Bitmap и graphics.Bitmap
                 }
 
-                finished = true;
                 return image;
             }
         } else {
@@ -150,6 +116,6 @@ public class MyImageAsyncLoader<Bitmap> extends AsyncTaskLoader<Bitmap> {
     @Override
     protected void onStopLoading() {
         cancelLoad();
-        Log.d(TAGG, "loader: on stop loading");
+        Log.d(Constants.TAGG, "loader: on stop loading");
     }
 }
